@@ -97,6 +97,29 @@ export function detectReferer(win) {
     return null;
   }
 
+  /**
+  *
+  * This function would return true if current location was chaged, false if not.
+  * @param {Window} win Window object
+  * @returns {boolean} location changed flag
+  */
+  const isLocationChanged = (function(cachedHref) {
+    return function(win) {
+      try {
+        const currentHref = win.location.href;
+
+        if (currentHref !== cachedHref) {
+          cachedHref = currentHref
+          return true
+        }
+
+        return false
+      } catch (e) {
+        return false
+      }
+    }
+  })('')
+
   // TODO: the meaning of "reachedTop" seems to be intentionally ambiguous - best to leave them out of
   // the typedef for now. (for example, unit tests enforce that "reachedTop" should be false in some situations where we
   // happily provide a location for the top).
@@ -255,7 +278,7 @@ export function detectReferer(win) {
   }
 
   return function() {
-    if (!RI.has(win)) {
+    if (!RI.has(win) || isLocationChanged(win)) {
       RI.set(win, Object.freeze(refererInfo()));
     }
     return RI.get(win);
